@@ -28,7 +28,7 @@ def test_last_price_exchange(crypto_swap_with_deposit, token, coins, accounts, a
     coins[i]._mint_for_testing(user, amount)
 
     out = coins[j].balanceOf(user)
-    crypto_swap_with_deposit.exchange(i, j, amount, 0, {'from': user})
+    crypto_swap_with_deposit.exchange(i, j, amount, 0, user,{'from': user})
     out = coins[j].balanceOf(user) - out
 
     if amount <= 10**5 or out <= 10**5:
@@ -55,7 +55,7 @@ def test_last_price_remove_liq(crypto_swap_with_deposit, token, coins, accounts,
     prices = [10**18] + INITIAL_PRICES
     token_amount = token_frac * token.totalSupply() // 10**18
 
-    crypto_swap_with_deposit.remove_liquidity_one_coin(token_amount, i, 0, {'from': user})
+    crypto_swap_with_deposit.remove_liquidity_one_coin(token_amount, i, 0, user, {'from': user})
 
     oracle_price = crypto_swap_with_deposit.last_prices()
     assert abs(log2(oracle_price / prices[1])) < 0.1
@@ -76,12 +76,12 @@ def test_ma(chain, crypto_swap_with_deposit, token, coins, accounts, amount, i, 
 
     half_time = crypto_swap_with_deposit.ma_half_time()
 
-    crypto_swap_with_deposit.exchange(i, j, amount, 0, {'from': user})
+    crypto_swap_with_deposit.exchange(i, j, amount, 0, user, {'from': user})
 
     p2 = crypto_swap_with_deposit.last_prices()
 
     chain.sleep(t)
-    crypto_swap_with_deposit.remove_liquidity_one_coin(10**15, 0, 0, {'from': user})
+    crypto_swap_with_deposit.remove_liquidity_one_coin(10**15, 0, 0, user, {'from': user})
 
     p3 = crypto_swap_with_deposit.price_oracle()
 
@@ -105,12 +105,12 @@ def test_price_scale_range(chain, crypto_swap_with_deposit, coins, accounts, amo
     amount = amount * 10**18 // prices1[i]
     coins[i]._mint_for_testing(user, amount)
 
-    crypto_swap_with_deposit.exchange(i, j, amount, 0, {'from': user})
+    crypto_swap_with_deposit.exchange(i, j, amount, 0, user, {'from': user})
 
     p2 = crypto_swap_with_deposit.last_prices()
 
     chain.sleep(t)
-    crypto_swap_with_deposit.remove_liquidity_one_coin(10**15, 0, 0, {'from': user})
+    crypto_swap_with_deposit.remove_liquidity_one_coin(10**15, 0, 0, user, {'from': user})
 
     p3 = crypto_swap_with_deposit.price_scale()
 
@@ -135,7 +135,7 @@ def test_price_scale_change(chain, crypto_swap_with_deposit, i, coins, accounts)
     coins[i]._mint_for_testing(user, amount)
 
     out = coins[j].balanceOf(user)
-    crypto_swap_with_deposit.exchange(i, j, amount, 0, {'from': user})
+    crypto_swap_with_deposit.exchange(i, j, amount, 0, user, {'from': user})
     out = coins[j].balanceOf(user) - out
 
     prices2 = crypto_swap_with_deposit.last_prices()
@@ -146,14 +146,14 @@ def test_price_scale_change(chain, crypto_swap_with_deposit, i, coins, accounts)
 
     assert approx(out_price, prices2, 2e-10)
 
-    crypto_swap_with_deposit.exchange(j, i, int(out * 0.95), 0, {'from': user})
+    crypto_swap_with_deposit.exchange(j, i, int(out * 0.95), 0, user, {'from': user})
 
     price_scale_1 = crypto_swap_with_deposit.price_scale()
 
     chain.sleep(t)
 
     coins[0]._mint_for_testing(user, 10**18)
-    crypto_swap_with_deposit.exchange(0, 1, 10**18, 0, {'from': user})
+    crypto_swap_with_deposit.exchange(0, 1, 10**18, 0, user, {'from': user})
     step = max(crypto_swap_with_deposit.adjustment_step() / 1e18,
                abs(log(crypto_swap_with_deposit.price_oracle() / crypto_swap_with_deposit.price_scale())) / 10)
     price_scale_2 = crypto_swap_with_deposit.price_scale()

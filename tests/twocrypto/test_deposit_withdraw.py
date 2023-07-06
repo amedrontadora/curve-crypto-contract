@@ -15,14 +15,15 @@ def test_1st_deposit_and_last_withdraw(crypto_swap, coins, token, accounts):
         coin.approve(crypto_swap, 2**256-1, {'from': user})
 
     # Very first deposit
-    crypto_swap.add_liquidity(quantities, 0, {'from': user})
+    crypto_swap.add_liquidity(quantities, 0, user, {'from': user})
 
     token_balance = token.balanceOf(user)
     assert token_balance == token.totalSupply() > 0
     assert abs(crypto_swap.get_virtual_price() / 1e18 - 1) < 1e-3
 
+    print(token_balance, token.totalSupply());
     # Empty the contract
-    crypto_swap.remove_liquidity(token_balance, [0] * 2, {'from': user})
+    crypto_swap.remove_liquidity(token_balance, [0] * 2, user,{'from': user})
 
     assert token.balanceOf(user) == token.totalSupply() == 0
 
@@ -48,7 +49,7 @@ def test_second_deposit(crypto_swap_with_deposit, token, coins, accounts, values
         calculated = crypto_swap_with_deposit.calc_token_amount(amounts)
         measured = token.balanceOf(user)
         d_balances = [crypto_swap_with_deposit.balances(i) for i in range(2)]
-        crypto_swap_with_deposit.add_liquidity(amounts, int(calculated * 0.999), {'from': user})
+        crypto_swap_with_deposit.add_liquidity(amounts, int(calculated * 0.999), user, {'from': user})
         d_balances = [crypto_swap_with_deposit.balances(i) - d_balances[i] for i in range(2)]
         measured = token.balanceOf(user) - measured
 
@@ -77,7 +78,7 @@ def test_second_deposit_one(crypto_swap_with_deposit, token, coins, accounts, va
     calculated = crypto_swap_with_deposit.calc_token_amount(amounts)
     measured = token.balanceOf(user)
     d_balances = [crypto_swap_with_deposit.balances(i) for i in range(2)]
-    crypto_swap_with_deposit.add_liquidity(amounts, int(calculated * 0.999), {'from': user})
+    crypto_swap_with_deposit.add_liquidity(amounts, int(calculated * 0.999), user, {'from': user})
     d_balances = [crypto_swap_with_deposit.balances(i) - d_balances[i] for i in range(2)]
     measured = token.balanceOf(user) - measured
 
@@ -98,6 +99,7 @@ def test_immediate_withdraw(crypto_swap_with_deposit, token, coins, accounts, to
         crypto_swap_with_deposit.remove_liquidity(
                 token_amount,
                 [int(0.999 * e) for e in expected],
+                user,
                 {'from': user})
         d_balances = [d_balances[i] - crypto_swap_with_deposit.balances(i) for i in range(2)]
         measured = [c.balanceOf(user) - m for c, m in zip(coins, measured)]
@@ -109,7 +111,7 @@ def test_immediate_withdraw(crypto_swap_with_deposit, token, coins, accounts, to
 
     else:
         with brownie.reverts():
-            crypto_swap_with_deposit.remove_liquidity(token_amount, [0] * 2, {'from': user})
+            crypto_swap_with_deposit.remove_liquidity(token_amount, [0] * 2, user, {'from': user})
 
 
 @given(
@@ -143,7 +145,7 @@ def test_immediate_withdraw_one(crypto_swap_with_deposit, token, coins, accounts
         measured = coins[i].balanceOf(user)
         d_balances = [crypto_swap_with_deposit.balances(k) for k in range(2)]
         try:
-            crypto_swap_with_deposit.remove_liquidity_one_coin(token_amount, i, int(0.999 * calculated), {'from': user})
+            crypto_swap_with_deposit.remove_liquidity_one_coin(token_amount, i, int(0.999 * calculated), user, {'from': user})
         except Exception:
             # Check if it could fall into unsafe region here
             frac = (d_balances[i] - calculated) * ([10**18] + INITIAL_PRICES)[i] // crypto_swap_with_deposit.D()

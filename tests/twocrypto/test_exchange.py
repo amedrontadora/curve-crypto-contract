@@ -18,7 +18,7 @@ def test_exchange(crypto_swap_with_deposit, token, coins, accounts, amount, i, j
         with brownie.reverts():
             crypto_swap_with_deposit.get_dy(i, j, 10**6)
         with brownie.reverts():
-            crypto_swap_with_deposit.exchange(i, j, 10**6, 0, {'from': user})
+            crypto_swap_with_deposit.exchange(i, j, 10**6, 0, user, {'from': user})
 
     else:
         prices = [10**18] + INITIAL_PRICES
@@ -31,7 +31,7 @@ def test_exchange(crypto_swap_with_deposit, token, coins, accounts, amount, i, j
         d_balance_i = crypto_swap_with_deposit.balances(i)
         d_balance_j = crypto_swap_with_deposit.balances(j)
 
-        crypto_swap_with_deposit.exchange(i, j, amount, int(0.999 * calculated), {'from': user})
+        crypto_swap_with_deposit.exchange(i, j, amount, int(0.999 * calculated), user,{'from': user})
 
         measured_i -= coins[i].balanceOf(user)
         measured_j = coins[j].balanceOf(user) - measured_j

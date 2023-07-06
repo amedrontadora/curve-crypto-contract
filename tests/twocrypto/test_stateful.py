@@ -32,7 +32,7 @@ class NumbaGoUp(StatefulBase):
 
         try:
             tokens = self.token.balanceOf(user)
-            self.swap.add_liquidity(amounts, 0, {'from': user})
+            self.swap.add_liquidity(amounts, 0, user, {'from': user})
             tokens = self.token.balanceOf(user) - tokens
             self.total_supply += tokens
             self.balances = new_balances
@@ -55,11 +55,11 @@ class NumbaGoUp(StatefulBase):
     def rule_remove_liquidity(self, token_amount, user):
         if self.token.balanceOf(user) < token_amount or token_amount == 0:
             with brownie.reverts():
-                self.swap.remove_liquidity(token_amount, [0] * 2, {'from': user})
+                self.swap.remove_liquidity(token_amount, [0] * 2, user, {'from': user})
         else:
             amounts = [c.balanceOf(user) for c in self.coins]
             tokens = self.token.balanceOf(user)
-            self.swap.remove_liquidity(token_amount, [0] * 2, {'from': user})
+            self.swap.remove_liquidity(token_amount, [0] * 2, user, {'from': user})
             tokens -= self.token.balanceOf(user)
             self.total_supply -= tokens
             amounts = [(c.balanceOf(user) - a) for c, a in zip(self.coins, amounts)]
@@ -83,12 +83,12 @@ class NumbaGoUp(StatefulBase):
         d_token = self.token.balanceOf(user)
         if d_token < token_amount:
             with brownie.reverts():
-                self.swap.remove_liquidity_one_coin(token_amount, exchange_i, 0, {'from': user})
+                self.swap.remove_liquidity_one_coin(token_amount, exchange_i, 0, user, {'from': user})
             return
 
         d_balance = self.coins[exchange_i].balanceOf(user)
         try:
-            self.swap.remove_liquidity_one_coin(token_amount, exchange_i, 0, {'from': user})
+            self.swap.remove_liquidity_one_coin(token_amount, exchange_i, 0, user, {'from': user})
         except Exception:
             # Small amounts may fail with rounding errors
             if calc_out_amount > 100 and\

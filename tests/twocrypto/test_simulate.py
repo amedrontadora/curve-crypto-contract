@@ -22,7 +22,7 @@ class StatefulSimulation(StatefulBase):
                 coin._mint_for_testing(u, q)
             for i in range(2):
                 self.balances[i] += self.initial_deposit[i]
-            self.swap.add_liquidity(self.initial_deposit, 0, {'from': u})
+            self.swap.add_liquidity(self.initial_deposit, 0, u, {'from': u})
             self.total_supply += self.token.balanceOf(u)
 
         self.virtual_price = self.swap.get_virtual_price()

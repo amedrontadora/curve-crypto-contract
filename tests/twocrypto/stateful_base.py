@@ -38,7 +38,7 @@ class StatefulBase:
                     coin.approve(self.swap, 2**256-1, {'from': u})
 
         # Very first deposit
-        self.swap.add_liquidity(self.initial_deposit, 0, {'from': user})
+        self.swap.add_liquidity(self.initial_deposit, 0, user, {'from': user})
 
         self.balances = self.initial_deposit[:]
         self.total_supply = self.token.balanceOf(user)
@@ -91,7 +91,7 @@ class StatefulBase:
         d_balance_i = self.coins[exchange_i].balanceOf(user)
         d_balance_j = self.coins[exchange_j].balanceOf(user)
         try:
-            self.swap.exchange(exchange_i, exchange_j, exchange_amount_in, 0, {'from': user})
+            self.swap.exchange(exchange_i, exchange_j, exchange_amount_in, 0, user, {'from': user})
         except Exception:
             # Small amounts may fail with rounding errors
             if calc_amount > 100 and exchange_amount_in > 100 and\

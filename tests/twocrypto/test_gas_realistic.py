@@ -30,7 +30,7 @@ class StatefulGas(StatefulBase):
 
         try:
             tokens = self.token.balanceOf(user)
-            self.swap.add_liquidity(amounts, 0, {'from': user})
+            self.swap.add_liquidity(amounts, 0, user, {'from': user})
             tokens = self.token.balanceOf(user) - tokens
             self.total_supply += tokens
             self.balances = new_balances
@@ -56,7 +56,7 @@ class StatefulGas(StatefulBase):
 
         d_balance = self.coins[exchange_i].balanceOf(user)
         try:
-            self.swap.remove_liquidity_one_coin(token_amount, exchange_i, 0, {'from': user})
+            self.swap.remove_liquidity_one_coin(token_amount, exchange_i, 0, user, {'from': user})
         except Exception:
             # Small amounts may fail with rounding errors
             if calc_out_amount > 100 and\

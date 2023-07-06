@@ -45,7 +45,7 @@ def _crypto_swap_with_deposit(crypto_swap, coins, accounts):
         coin.approve(crypto_swap, 2**256-1, {'from': user})
 
     # Very first deposit
-    crypto_swap.add_liquidity(quantities, 0, {'from': user})
+    crypto_swap.add_liquidity(quantities, 0, user, {'from': user})
 
     return crypto_swap
 
